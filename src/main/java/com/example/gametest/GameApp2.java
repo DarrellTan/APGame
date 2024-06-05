@@ -59,7 +59,6 @@ public class GameApp2 extends Application {
             @Override
             public void handle(long now) {
                 updateCharacterPosition();
-                checkCollisions();
             }
         }.start();
     }
@@ -107,14 +106,18 @@ public class GameApp2 extends Application {
 
         // Check for partial intersection between the edges of the characters' images
         switch (direction) {
-            case "W":
-                return characterBottom > testTop && characterTop - Character.MOVE_DISTANCE < testBottom && characterBottom < testBottom;
-            case "A":
-                return characterRight > testLeft && characterLeft - Character.MOVE_DISTANCE < testRight && characterRight < testRight;
-            case "S":
-                return characterTop < testBottom && characterBottom + Character.MOVE_DISTANCE > testTop && characterTop > testTop;
-            case "D":
-                return characterLeft < testRight && characterRight + Character.MOVE_DISTANCE > testLeft && characterLeft < testLeft;
+            case "W": // Moving up
+                return characterRight > testLeft && characterLeft < testRight &&
+                        characterTop - Character.MOVE_DISTANCE < testBottom && characterTop > testTop;
+            case "A": // Moving left
+                return characterBottom > testTop && characterTop < testBottom &&
+                        characterLeft - Character.MOVE_DISTANCE < testRight && characterLeft > testLeft;
+            case "S": // Moving down
+                return characterRight > testLeft && characterLeft < testRight &&
+                        characterBottom + Character.MOVE_DISTANCE > testTop && characterBottom < testBottom;
+            case "D": // Moving right
+                return characterBottom > testTop && characterTop < testBottom &&
+                        characterRight + Character.MOVE_DISTANCE > testLeft && characterRight < testRight;
             default:
                 return false;
         }
