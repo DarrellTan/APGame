@@ -72,6 +72,7 @@ public class GameApp2 extends Application {
     }
 
     private void updateCharacterPosition() {
+        // Gets where character is located
         double characterX = character.getImageView().getX();
         double characterY = character.getImageView().getY();
 
