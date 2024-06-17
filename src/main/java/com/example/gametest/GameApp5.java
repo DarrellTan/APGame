@@ -11,16 +11,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GameApp3 extends Application {
+public class GameApp5 extends Application {
 
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
+    private static final long SHOOTING_COOLDOWN = 1_000_000_000; // 100 milliseconds in nanoseconds
+    private static final long FRAME_DURATION = 1_000_000_000 / 60; // Cap at 60 FPS
     public Pane root;
 
     private CharacterTest character;
     public Character test;
     private List<Character> characters = new ArrayList<>();
     private Set<String> keysPressed = new HashSet<>();
+    private List<Projectile4> projectiles = new ArrayList<>();
+    private long lastShotTime = 0;
+    private long lastUpdateTime = 0;
 
     public static void main(String[] args) {
         launch(args);
@@ -28,7 +33,8 @@ public class GameApp3 extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        root = new Pane();
+        root = new Pane(); // Initialize root here
+
         // MC Character
         character = new CharacterTest();
         character.getImageView().setX(WINDOW_WIDTH / 2 - Character.CHARACTER_SIZE / 2);
@@ -36,13 +42,13 @@ public class GameApp3 extends Application {
 
         root.getChildren().add(character.getImageView());
 
-
         // Bot
         test = new Character("chaewon icon.jpeg");
         test.getImageView().setX(700);
         test.getImageView().setY(500);
         root.getChildren().add(test.getImageView());
         characters.add(test);
+
 
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
         scene.setOnKeyPressed(this::handleKeyPressed);
@@ -59,16 +65,24 @@ public class GameApp3 extends Application {
         new javafx.animation.AnimationTimer() {
             @Override
             public void handle(long now) {
-                updateCharacterPosition();
-                shootingTest();
+                if (now - lastUpdateTime >= FRAME_DURATION) {
+                    update(now);
+                    render();
+                    lastUpdateTime = now;
+                }
             }
         }.start();
     }
 
-    // Handler for Arrow Keys Button
+    private void update(long now) {
+        updateCharacterPosition();
+        shootingTest(now);
+        updateProjectiles();
+    }
 
-
-
+    private void render() {
+        // Render code if needed
+    }
 
     private void handleKeyPressed(KeyEvent event) {
         keysPressed.add(event.getCode().toString());
@@ -97,43 +111,70 @@ public class GameApp3 extends Application {
         }
     }
 
-    private void shootingTest() {
-        double characterX = character.getImageView().getX();
-        double characterY = character.getImageView().getY();
+    private void shootingTest(long now) {
+        if (now - lastShotTime < SHOOTING_COOLDOWN) {
+            return; // Enforce cooldown
+        }
 
         if (keysPressed.contains("UP")) {
             System.out.println("Up Pressed");
-            String projectileImagePath = "projectile.png";
-
-            // Debugging statements
-            System.out.println("Character X: " + characterX);
-            System.out.println("Character Y: " + characterY);
-            System.out.println("Projectile Image Path: " + projectileImagePath);
-
-            // Check for null values
-            if (projectileImagePath != null) {
-                Projectile3 projectile = new Projectile3(projectileImagePath, characterX, characterY);
-                if (projectile.getprojectImageView() != null) {
-                    root.getChildren().add(projectile.getprojectImageView());
-                } else {
-                    System.out.println("Projectile ImageView is null.");
-                }
-            } else {
-                System.out.println("Projectile Image Path is null.");
-            }
+            createProjectile("UP");
+            lastShotTime = now;
         }
-
         if (keysPressed.contains("DOWN")) {
             System.out.println("Down Pressed");
+            createProjectile("DOWN");
+            lastShotTime = now;
         }
-
         if (keysPressed.contains("LEFT")) {
             System.out.println("Left Pressed");
+            createProjectile("LEFT");
+            lastShotTime = now;
         }
-
         if (keysPressed.contains("RIGHT")) {
             System.out.println("Right Pressed");
+            createProjectile("RIGHT");
+            lastShotTime = now;
         }
+    }
+
+    private void createProjectile(String direction) {
+        Projectile4 projectile = new Projectile4("projectile.png", character.getImageView().getX(), character.getImageView().getY(), direction);
+        projectiles.add(projectile);
+        root.getChildren().add(projectile.getprojectImageView());
+    }
+
+    private void updateProjectiles() {
+        List<Projectile4> projectilesToRemove = new ArrayList<>();
+        for (Projectile4 projectile : projectiles) {
+            projectile.move();
+            if (projectile.getprojectImageView().getX() < 0 || projectile.getprojectImageView().getX() > WINDOW_WIDTH
+                    || projectile.getprojectImageView().getY() < 0 || projectile.getprojectImageView().getY() > WINDOW_HEIGHT) {
+                projectilesToRemove.add(projectile);
+                root.getChildren().remove(projectile.getprojectImageView());
+            }
+        }
+        projectiles.removeAll(projectilesToRemove);
+        System.out.println(projectiles.toString());
+    }
+
+    private void checkProjectileCollisions() {
+        List<Projectile4> projectilesToRemove = new ArrayList<>();
+        for (Projectile4 projectile : projectiles) {
+            for (Character character : characters) {
+                if (projectile.collidesWith(character)) {
+                    projectilesToRemove.add(projectile);
+                    root.getChildren().remove(projectile.getprojectImageView());
+                    handleCharacterHit(character);
+                }
+            }
+        }
+        projectiles.removeAll(projectilesToRemove);
+    }
+
+    private void handleCharacterHit(Character character) {
+        // Implement the logic for when a character is hit by a projectile
+        System.out.println("Character hit: " + character);
     }
 
     private boolean collisionInDirection(double characterX, double characterY, Character other, String direction) {
@@ -169,8 +210,6 @@ public class GameApp3 extends Application {
                 return false;
         }
     }
-
-
 
     private void checkCollisions() {
         if (character.collidesWith(test)) {

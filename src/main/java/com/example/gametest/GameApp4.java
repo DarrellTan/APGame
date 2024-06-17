@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GameApp3 extends Application {
+public class GameApp4 extends Application {
 
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
@@ -21,14 +21,14 @@ public class GameApp3 extends Application {
     public Character test;
     private List<Character> characters = new ArrayList<>();
     private Set<String> keysPressed = new HashSet<>();
-
+    ArrayList <Projectiles2> b = new ArrayList <Projectiles2>();
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
-        root = new Pane();
+        Pane root = new Pane();
         // MC Character
         character = new CharacterTest();
         character.getImageView().setX(WINDOW_WIDTH / 2 - Character.CHARACTER_SIZE / 2);
@@ -60,15 +60,10 @@ public class GameApp3 extends Application {
             @Override
             public void handle(long now) {
                 updateCharacterPosition();
-                shootingTest();
+                keyPressed();
             }
         }.start();
     }
-
-    // Handler for Arrow Keys Button
-
-
-
 
     private void handleKeyPressed(KeyEvent event) {
         keysPressed.add(event.getCode().toString());
@@ -97,42 +92,28 @@ public class GameApp3 extends Application {
         }
     }
 
-    private void shootingTest() {
-        double characterX = character.getImageView().getX();
-        double characterY = character.getImageView().getY();
+    void keyPressed() { //player movement
+        if (keysPressed.contains("J")) {
+            b.add(new Projectiles2(character.getX(), character.getY(), 9, 0));
+            System.out.println("J pressed");
+            bollots();
+        }
+        if (keysPressed.contains("L")) {
+            b.add(new Projectiles2(character.getX(), character.getY(), 0, 9));
+            System.out.println("L pressed");
+            bollots();
+        }
 
-        if (keysPressed.contains("UP")) {
-            System.out.println("Up Pressed");
-            String projectileImagePath = "projectile.png";
+    }
 
-            // Debugging statements
-            System.out.println("Character X: " + characterX);
-            System.out.println("Character Y: " + characterY);
-            System.out.println("Projectile Image Path: " + projectileImagePath);
-
-            // Check for null values
-            if (projectileImagePath != null) {
-                Projectile3 projectile = new Projectile3(projectileImagePath, characterX, characterY);
-                if (projectile.getprojectImageView() != null) {
-                    root.getChildren().add(projectile.getprojectImageView());
-                } else {
-                    System.out.println("Projectile ImageView is null.");
-                }
-            } else {
-                System.out.println("Projectile Image Path is null.");
+    void bollots() {
+        for (int i =  b.size()-1; i>=0; i--) {
+            Projectiles2 bullets = b.get(i);
+            bullets.display(root);
+            bullets.Pmove();
+            if (bullets.erase()) {
+                b.remove(bullets);
             }
-        }
-
-        if (keysPressed.contains("DOWN")) {
-            System.out.println("Down Pressed");
-        }
-
-        if (keysPressed.contains("LEFT")) {
-            System.out.println("Left Pressed");
-        }
-
-        if (keysPressed.contains("RIGHT")) {
-            System.out.println("Right Pressed");
         }
     }
 

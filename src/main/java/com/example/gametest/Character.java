@@ -7,6 +7,7 @@ import javafx.scene.image.ImageView;
 public class Character {
     public static final int CHARACTER_SIZE = 40;
     public static final int MOVE_DISTANCE = 5;
+    public int health;
 
     public ImageView imageView;
 
@@ -53,5 +54,9 @@ public class Character {
 
     public boolean collidesWith(Character other) {
         return getBounds().intersects(other.getBounds());
+    }
+
+    public Bounds getBoundingBox() {
+        return imageView.getBoundsInParent();
     }
 }

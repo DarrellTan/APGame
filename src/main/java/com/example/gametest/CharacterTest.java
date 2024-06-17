@@ -24,7 +24,6 @@ public class CharacterTest implements MouseListener {
 
 
     public CharacterTest() {
-        this.projectiles = new ArrayList<>();
 
         // Implementing Character
         Image characterImage = new Image("yena icon.jpeg");
@@ -35,19 +34,11 @@ public class CharacterTest implements MouseListener {
         imageView.setY(0);
     }
 
-    public void shoot() {
-        int direction = 0; // Example: facing right
-        int speed = 10;
-        int damage = 5;
-        Projectile projectile = new Projectile(this.x, this.y, direction, speed, damage);
-        projectiles.add(projectile);
-        System.out.println("Shoot is called");
-    }
 
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) { // Mouse 1 is clicked
-            shoot();
+            System.out.println("Mouse Button Pressed");
         }
     }
 
@@ -63,12 +54,7 @@ public class CharacterTest implements MouseListener {
     @Override
     public void mouseExited(MouseEvent e) {}
 
-    public void update() {
-        for (Projectile p : projectiles) {
-            p.move();
-            // Add collision detection logic if necessary
-        }
-    }
+
 
     public void draw(Graphics g) {
         for (Projectile p : projectiles) {
