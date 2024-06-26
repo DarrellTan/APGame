@@ -1,52 +1,50 @@
 package com.example.gametest;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class Projectile {
-    private int x, y;
-    private int speed;
-    private int direction;
-    private int damage;
-    private Image image;
 
-    public Projectile(int x, int y, int direction, int speed, int damage) {
-        this.x = x;
-        this.y = y;
+    private static final double PROJECTILE_SIZE = 40;
+    private static final double PROJECTILE_SPEED = 10;
+
+    private ImageView projectileImageView;
+    private String direction;
+
+    public Projectile(String imagePath, double characterX, double characterY, String direction) {
+        Image characterImage = new Image(imagePath);
+        projectileImageView = new ImageView(characterImage);
+        projectileImageView.setFitWidth(PROJECTILE_SIZE);
+        projectileImageView.setFitHeight(PROJECTILE_SIZE);
+        projectileImageView.setX(characterX);
+        projectileImageView.setY(characterY);
         this.direction = direction;
-        this.speed = speed;
-        this.damage = damage;
-        try {
-            this.image = ImageIO.read(getClass().getClassLoader().getResourceAsStream("projectile.png"));
-            if (this.image == null) {
-                throw new IOException("Resource not found: projectile.png");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    }
+
+    public ImageView getProjectileImageView() {
+        return projectileImageView;
     }
 
     public void move() {
         switch (direction) {
-            case 0:
-                x += speed;
+            case "UP":
+                projectileImageView.setY(projectileImageView.getY() - PROJECTILE_SPEED);
                 break;
-            case 180:
-                x -= speed;
+            case "DOWN":
+                projectileImageView.setY(projectileImageView.getY() + PROJECTILE_SPEED);
                 break;
-            // Add more directions if necessary
+            case "LEFT":
+                projectileImageView.setX(projectileImageView.getX() - PROJECTILE_SPEED);
+                break;
+            case "RIGHT":
+                projectileImageView.setX(projectileImageView.getX() + PROJECTILE_SPEED);
+                break;
         }
     }
 
-    public void draw(Graphics g) {
-        g.drawImage(image, x, y, null);
-    }
+//    public boolean collidesWith(Character character) {
+//        return projectileImageView.getBoundsInParent().intersects(character.getImageView().getBoundsInParent());
+//    }
 
-    public boolean checkCollision(CharacterTest target) {
-        // Simplified collision detection
-        return target.getX() == x && target.getY() == y;
-    }
+
 }

@@ -1,23 +1,65 @@
 package com.example.gametest;
 
+
 import javafx.geometry.Bounds;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-public class Character {
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.List;
+
+public class PlayableCharacter implements MouseListener {
+
+    private int x, y;
+    private List<Projectile> projectiles;
+
+
+    // Import from previous Character
     public static final int CHARACTER_SIZE = 40;
     public static final int MOVE_DISTANCE = 5;
-    public int health;
-
     public ImageView imageView;
 
-    public Character(String imagePath, double X, double Y) {
-        Image characterImage = new Image(imagePath);
+
+    public PlayableCharacter() {
+
+        // Implementing Character
+        Image characterImage = new Image("yena icon.jpeg");
         imageView = new ImageView(characterImage);
         imageView.setFitWidth(CHARACTER_SIZE);
         imageView.setFitHeight(CHARACTER_SIZE);
-        imageView.setX(X);
-        imageView.setY(Y);
+        imageView.setX(0);
+        imageView.setY(0);
+    }
+
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1) { // Mouse 1 is clicked
+            System.out.println("Mouse Button Pressed");
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
+
+
+
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y;
     }
 
     public ImageView getImageView() {
@@ -52,31 +94,9 @@ public class Character {
         return imageView.getBoundsInParent();
     }
 
-    public boolean collidesWith(Character other) {
+    public boolean collidesWith(NonPlayableCharacter other) {
         return getBounds().intersects(other.getBounds());
     }
 
-    public Bounds getBoundingBox() {
-        return imageView.getBoundsInParent();
-    }
-
-    // New Movement Generation
-
-    public void moveTo(double x, double y) {
-        this.getImageView().setX(x);
-        this.getImageView().setY(y);
-    }
-
-    public double getX() {
-        return this.getImageView().getX();
-    }
-
-    public double getY() {
-        return this.getImageView().getY();
-    }
-
-    public void move(double dx, double dy) {
-        this.getImageView().setX(this.getX() + dx);
-        this.getImageView().setY(this.getY() + dy);
-    }
 }
+
