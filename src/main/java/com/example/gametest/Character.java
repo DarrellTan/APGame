@@ -11,13 +11,13 @@ public class Character {
 
     public ImageView imageView;
 
-    public Character(String imagePath) {
+    public Character(String imagePath, double X, double Y) {
         Image characterImage = new Image(imagePath);
         imageView = new ImageView(characterImage);
         imageView.setFitWidth(CHARACTER_SIZE);
         imageView.setFitHeight(CHARACTER_SIZE);
-        imageView.setX(0);
-        imageView.setY(0);
+        imageView.setX(X);
+        imageView.setY(Y);
     }
 
     public ImageView getImageView() {
@@ -58,5 +58,25 @@ public class Character {
 
     public Bounds getBoundingBox() {
         return imageView.getBoundsInParent();
+    }
+
+    // New Movement Generation
+
+    public void moveTo(double x, double y) {
+        this.getImageView().setX(x);
+        this.getImageView().setY(y);
+    }
+
+    public double getX() {
+        return this.getImageView().getX();
+    }
+
+    public double getY() {
+        return this.getImageView().getY();
+    }
+
+    public void move(double dx, double dy) {
+        this.getImageView().setX(this.getX() + dx);
+        this.getImageView().setY(this.getY() + dy);
     }
 }
