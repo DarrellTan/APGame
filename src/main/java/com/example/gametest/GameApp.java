@@ -28,6 +28,7 @@ public class GameApp extends Application {
     private List<Projectile> projectiles = new ArrayList<>();
     private long lastUpdateTime = 0;
     private long lastShotTime = 0;
+    private AudioPlayer audioPlayer;
 
     private double npcSpeed = 100; // Pixels per second
 
@@ -61,6 +62,12 @@ public class GameApp extends Application {
         // Request focus on the root pane to receive key events
         root.requestFocus();
 
+        // Initialize AudioPlayer
+      //  audioPlayer = new AudioPlayer();
+        //String musicFilePath = "src/main/resources/music/pvz.wav";
+        //audioPlayer.playMusic(musicFilePath);
+        //audioPlayer.setMusicVolume(-10.0f);
+
         // Start an animation timer to update the character's position
         new AnimationTimer() {
             @Override
@@ -84,7 +91,7 @@ public class GameApp extends Application {
 
     private void update(long now) {
         updateCharacterPosition();
-       updateNpcPosition(now); // Update NPC position
+        //updateNpcPosition(now); // Update NPC position
         shootingTest(now);
         updateProjectiles();
         checkProjectileCollisions();
@@ -118,17 +125,17 @@ public class GameApp extends Application {
 
     private void updateNpcPosition(long now) {
         double dt = 1.0 / 60.0;
-        System.out.println("DT: " + dt);
+       // System.out.println("DT: " + dt);
         // Calculate the desired target position for the NPC
         double targetX = character.getImageView().getX();
         double targetY = character.getImageView().getY();
-        System.out.println("Position of Test X: " + test.getImageView().getX() + " Position of Test Y: " + test.getImageView().getY());
+       // System.out.println("Position of Test X: " + test.getImageView().getX() + " Position of Test Y: " + test.getImageView().getY());
 
         // Calculate the direction vector from NPC to character
         double directionX = targetX - test.getImageView().getX();
         double directionY = targetY - test.getImageView().getY();
         double length = Math.sqrt(directionX * directionX + directionY * directionY);
-        System.out.println("Direction X: " + directionX + " Direction Y: " + directionY);
+       // System.out.println("Direction X: " + directionX + " Direction Y: " + directionY);
 
         // Normalize the direction vector (optional, but ensures smoother movement)
         if (length != 0) {
@@ -140,19 +147,19 @@ public class GameApp extends Application {
         double dx = directionX * npcSpeed * dt;
         double dy = directionY * npcSpeed * dt;
 
-        System.out.println("dx: " + dx + " dy: " + dy);
+        //System.out.println("dx: " + dx + " dy: " + dy);
 
         // Update the NPC's position with boundary checks
         double newX = test.getImageView().getX() + dx;
         double newY = test.getImageView().getY() + dy;
-        System.out.println("Test X: " + test.getImageView().getX() + " Test Y: " + test.getImageView().getY());
-        System.out.println("newX: " + newX + " newY: " + newY);
+//        System.out.println("Test X: " + test.getImageView().getX() + " Test Y: " + test.getImageView().getY());
+//        System.out.println("newX: " + newX + " newY: " + newY);
         newX = Math.max(0, Math.min(newX, WINDOW_WIDTH - NonPlayableCharacter.CHARACTER_SIZE));
         newY = Math.max(0, Math.min(newY, WINDOW_HEIGHT - NonPlayableCharacter.CHARACTER_SIZE));
 
         // Move the NPC
         test.moveTo(newX, newY);
-        System.out.println("Target X: " + targetX + " Target Y: " + targetY + " Direction X: " + directionX + " Direction Y: " + directionY + " Test X: " + test.getImageView().getX() + " Test Y: " + test.getImageView().getY());
+        //System.out.println("Target X: " + targetX + " Target Y: " + targetY + " Direction X: " + directionX + " Direction Y: " + directionY + " Test X: " + test.getImageView().getX() + " Test Y: " + test.getImageView().getY());
     }
 
     private void shootingTest(long now) {
@@ -160,30 +167,36 @@ public class GameApp extends Application {
             return; // Enforce cooldown
         }
 
-        if (keysPressed.contains("UP")) {
+        boolean shotFired = false;
+
+        if (keysPressed.contains("UP") && !shotFired) {
             System.out.println("Up Pressed");
-            createProjectile("UP");
+            createProjectile("UP", "projectile/projectileUp.png");
             lastShotTime = now;
+            shotFired = true;
         }
-        if (keysPressed.contains("DOWN")) {
+        if (keysPressed.contains("DOWN") && !shotFired) {
             System.out.println("Down Pressed");
-            createProjectile("DOWN");
+            createProjectile("DOWN", "projectile/projectileDown.png");
             lastShotTime = now;
+            shotFired = true;
         }
-        if (keysPressed.contains("LEFT")) {
+        if (keysPressed.contains("LEFT") && !shotFired) {
             System.out.println("Left Pressed");
-            createProjectile("LEFT");
+            createProjectile("LEFT", "projectile/projectileLeft.png");
             lastShotTime = now;
+            shotFired = true;
         }
-        if (keysPressed.contains("RIGHT")) {
+        if (keysPressed.contains("RIGHT") && !shotFired) {
             System.out.println("Right Pressed");
-            createProjectile("RIGHT");
+            createProjectile("RIGHT", "projectile/projectileRight.png");
             lastShotTime = now;
+            shotFired = true;
         }
     }
 
-    private void createProjectile(String direction) {
-        Projectile projectile = new Projectile("projectile.png", character.getImageView().getX(), character.getImageView().getY(), direction);
+    private void createProjectile(String direction, String projectileDirection) {
+        Projectile projectile = new Projectile(projectileDirection, character.getImageView().getX(), character.getImageView().getY(), direction);
         projectiles.add(projectile);
         root.getChildren().add(projectile.getProjectileImageView());
     }

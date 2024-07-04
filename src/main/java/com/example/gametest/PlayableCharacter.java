@@ -68,6 +68,7 @@ public class PlayableCharacter implements MouseListener {
 
     public void moveUp() {
         if (imageView.getY() - MOVE_DISTANCE >= 0) {
+
             imageView.setY(imageView.getY() - MOVE_DISTANCE);
         }
     }
