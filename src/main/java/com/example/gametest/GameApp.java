@@ -171,25 +171,25 @@ public class GameApp extends Application {
 
         if (keysPressed.contains("UP") && !shotFired) {
             System.out.println("Up Pressed");
-            createProjectile("UP", "projectile/projectileUp.png");
+            createProjectile("UP", "/projectile/projectileUp.png");
             lastShotTime = now;
             shotFired = true;
         }
         if (keysPressed.contains("DOWN") && !shotFired) {
             System.out.println("Down Pressed");
-            createProjectile("DOWN", "projectile/projectileDown.png");
+            createProjectile("DOWN", "/projectile/projectileDown.png");
             lastShotTime = now;
             shotFired = true;
         }
         if (keysPressed.contains("LEFT") && !shotFired) {
             System.out.println("Left Pressed");
-            createProjectile("LEFT", "projectile/projectileLeft.png");
+            createProjectile("LEFT", "/projectile/projectileLeft.png");
             lastShotTime = now;
             shotFired = true;
         }
         if (keysPressed.contains("RIGHT") && !shotFired) {
             System.out.println("Right Pressed");
-            createProjectile("RIGHT", "projectile/projectileRight.png");
+            createProjectile("RIGHT", "/projectile/projectileRight.png");
             lastShotTime = now;
             shotFired = true;
         }

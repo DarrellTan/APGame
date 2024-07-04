@@ -12,7 +12,7 @@ public class Projectile {
     private String direction;
 
     public Projectile(String imagePath, double characterX, double characterY, String direction) {
-        Image characterImage = new Image(imagePath);
+        Image characterImage = new Image(getClass().getResource(imagePath).toExternalForm());
         projectileImageView = new ImageView(characterImage);
         projectileImageView.setFitWidth(PROJECTILE_SIZE);
         projectileImageView.setFitHeight(PROJECTILE_SIZE);
