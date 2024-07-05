@@ -39,6 +39,7 @@ public class GameApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         root = new Pane(); // Initialize root here
+        root.setStyle("-fx-background-image: url('room.png');"); // Inline CSS for background
 
         // MC Character
         character = new PlayableCharacter();
@@ -91,7 +92,7 @@ public class GameApp extends Application {
 
     private void update(long now) {
         updateCharacterPosition();
-        //updateNpcPosition(now); // Update NPC position
+        updateNpcPosition(now); // Update NPC position
         shootingTest(now);
         updateProjectiles();
         checkProjectileCollisions();
@@ -148,6 +149,13 @@ public class GameApp extends Application {
         double dy = directionY * npcSpeed * dt;
 
         //System.out.println("dx: " + dx + " dy: " + dy);
+
+        // Determine the direction of movement and change the image accordingly
+        if (dx > 0) {
+            test.setImage(test.npcRight);
+        } else if (dx < 0) {
+            test.setImage(test.npcLeft);
+        }
 
         // Update the NPC's position with boundary checks
         double newX = test.getImageView().getX() + dx;

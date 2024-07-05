@@ -14,7 +14,7 @@ public class PlayableCharacter implements MouseListener {
     private List<Projectile> projectiles;
 
     // Import from previous Character
-    public static final int CHARACTER_SIZE = 40;
+    public static final int CHARACTER_SIZE = 60;
     public static final int MOVE_DISTANCE = 5;
     public ImageView imageView;
     public Image pcLeft;

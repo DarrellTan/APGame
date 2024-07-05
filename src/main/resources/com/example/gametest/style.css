@@ -1,0 +1,4 @@
+.background {
+    -fx-background-image: url("room.png");
+    -fx-background-size: cover;
+}

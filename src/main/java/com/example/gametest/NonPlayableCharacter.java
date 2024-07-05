@@ -5,11 +5,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class NonPlayableCharacter {
-    public static final int CHARACTER_SIZE = 40;
+    public static final int CHARACTER_SIZE = 60;
     public static final int MOVE_DISTANCE = 5;
     public int health;
 
     public ImageView imageView;
+
+    public Image npcLeft = new Image(getClass().getResource("/nonPlayableCharacter/npcLeft.png").toExternalForm());
+    public Image npcRight = new Image(getClass().getResource("/nonPlayableCharacter/npcRight.png").toExternalForm());
 
     public NonPlayableCharacter(String imagePath, double X, double Y) {
         Image characterImage = new Image(imagePath);
@@ -22,6 +25,10 @@ public class NonPlayableCharacter {
 
     public ImageView getImageView() {
         return imageView;
+    }
+
+    public void setImage(Image image) {
+        imageView.setImage(image);
     }
 
     public void moveUp() {
