@@ -48,14 +48,25 @@ public class WaveManager {
     }
 
     private void spawnWave() {
+        int maxNPCs = 15; // Maximum NPCs allowed at a time
+        int currentNPCs = npcs.size(); // Current number of active NPCs
+
+        if (currentNPCs >= maxNPCs) {
+            return; // Exit if already at maximum NPCs
+        }
+
         int numberOfEnemies = waveNumber + 5; // Increase enemies per wave
-        for (int i = 0; i < numberOfEnemies; i++) {
+        int NPCsToAdd = Math.min(maxNPCs - currentNPCs, numberOfEnemies); // Calculate NPCs to add
+
+        for (int i = 0; i < NPCsToAdd; i++) {
             double x = random.nextDouble() * (windowWidth - NonPlayableCharacter.CHARACTER_SIZE);
             double y = random.nextDouble() * (windowHeight - NonPlayableCharacter.CHARACTER_SIZE);
             NonPlayableCharacter npc = new NonPlayableCharacter(startNpcRight, x, y);
             npcs.add(npc);
             root.getChildren().add(npc.getImageView());
         }
+
+        // Increment wave number
         waveNumber++;
 
         // Check if it's a multiple of 5 to increase npcSpeed
@@ -67,6 +78,7 @@ public class WaveManager {
         // Debugging statement to check the size of npcs list
         System.out.println("NPCs in wave.npcs after spawning wave: " + npcs.size());
     }
+
 
     private void updateNPCs() {
         for (NonPlayableCharacter npc : npcs) {
