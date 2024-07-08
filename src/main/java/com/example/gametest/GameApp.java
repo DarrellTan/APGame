@@ -3,6 +3,7 @@ package com.example.gametest;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -15,13 +16,13 @@ import java.util.Set;
 
 public class GameApp extends Application {
 
-    private static final int WINDOW_WIDTH = 800;
-    private static final int WINDOW_HEIGHT = 600;
+    public static final int WINDOW_WIDTH = 800;
+    public static final int WINDOW_HEIGHT = 600;
     private static final long SHOOTING_COOLDOWN = 1_000_000_000; // 1 second in nanoseconds
     private static final long FRAME_DURATION = 1_000_000_000 / 60; // 60 FPS in nanoseconds
     private Pane root;
 
-    private PlayableCharacter character;
+    public PlayableCharacter character;
     private NonPlayableCharacter test;
     private List<NonPlayableCharacter> nonPlayableCharacters = new ArrayList<>();
     private Set<String> keysPressed = new HashSet<>();
@@ -29,8 +30,12 @@ public class GameApp extends Application {
     private long lastUpdateTime = 0;
     private long lastShotTime = 0;
     private AudioPlayer audioPlayer;
+    public WaveManager wave;
 
-    private double npcSpeed = 100; // Pixels per second
+    public Image startNpcLeft = new Image(getClass().getResource("/nonPlayableCharacter/npcLeft.png").toExternalForm());
+    public Image startNpcRight = new Image(getClass().getResource("/nonPlayableCharacter/npcRight.png").toExternalForm());
+
+    public double npcSpeed = 30; // Pixels per second
 
     public static void main(String[] args) {
         launch(args);
@@ -41,6 +46,8 @@ public class GameApp extends Application {
         root = new Pane(); // Initialize root here
         root.setStyle("-fx-background-image: url('room.png');"); // Inline CSS for background
 
+
+
         // MC Character
         character = new PlayableCharacter();
         character.getImageView().setX(WINDOW_WIDTH / 2 - NonPlayableCharacter.CHARACTER_SIZE / 2);
@@ -48,15 +55,20 @@ public class GameApp extends Application {
         root.getChildren().add(character.getImageView());
 
         // Bot
-        test = new NonPlayableCharacter("chaewon icon.jpeg", 700, 500);
-        root.getChildren().add(test.getImageView());
-        nonPlayableCharacters.add(test);
+//        test = new NonPlayableCharacter(startNpcRight, 700, 500);
+//        root.getChildren().add(test.getImageView());
+//        nonPlayableCharacters.add(test);
+
+        // Wave Spawner
+        WaveManager wave = new WaveManager(root, 800, 600);
+        this.wave = wave;
+        wave.setCharacter(character);
 
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
         scene.setOnKeyPressed(this::handleKeyPressed);
         scene.setOnKeyReleased(this::handleKeyReleased);
 
-        primaryStage.setTitle("SsamYen");
+        primaryStage.setTitle("Fearless");
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -64,10 +76,13 @@ public class GameApp extends Application {
         root.requestFocus();
 
         // Initialize AudioPlayer
-      //  audioPlayer = new AudioPlayer();
-        //String musicFilePath = "src/main/resources/music/pvz.wav";
-        //audioPlayer.playMusic(musicFilePath);
-        //audioPlayer.setMusicVolume(-10.0f);
+       audioPlayer = new AudioPlayer();
+       String musicFilePath = "src/main/resources/music/pvz.wav";
+       audioPlayer.playMusic(musicFilePath);
+       audioPlayer.setMusicVolume(-10.0f);
+
+        // Start waves
+        wave.startWaves();
 
         // Start an animation timer to update the character's position
         new AnimationTimer() {
@@ -76,10 +91,13 @@ public class GameApp extends Application {
                 if (now - lastUpdateTime >= FRAME_DURATION) {
                     update(now);
                     render();
+
                     lastUpdateTime = now;
                 }
             }
         }.start();
+
+
     }
 
     private void handleKeyPressed(KeyEvent event) {
@@ -92,7 +110,7 @@ public class GameApp extends Application {
 
     private void update(long now) {
         updateCharacterPosition();
-        updateNpcPosition(now); // Update NPC position
+//        updateNpcPosition(now); // Update NPC position
         shootingTest(now);
         updateProjectiles();
         checkProjectileCollisions();
@@ -108,17 +126,21 @@ public class GameApp extends Application {
         double characterX = character.getImageView().getX();
         double characterY = character.getImageView().getY();
 
-        if (keysPressed.contains("W") && !collisionInDirection(characterX, characterY, test, "W")) {
+        if (keysPressed.contains("W") && !collisionInDirection(characterX, characterY, wave.npcs, "W")) {
             character.moveUp();
+            System.out.println("Moving Up Pressed");
         }
-        if (keysPressed.contains("A") && !collisionInDirection(characterX, characterY, test, "A")) {
+        if (keysPressed.contains("A") && !collisionInDirection(characterX, characterY, wave.npcs, "A")) {
             character.moveLeft();
+            System.out.println("Moving Left Pressed");
         }
-        if (keysPressed.contains("S") && !collisionInDirection(characterX, characterY, test, "S")) {
+        if (keysPressed.contains("S") && !collisionInDirection(characterX, characterY, wave.npcs, "S")) {
             character.moveDown(WINDOW_HEIGHT);
+            System.out.println("Moving Down Pressed");
         }
-        if (keysPressed.contains("D") && !collisionInDirection(characterX, characterY, test, "D")) {
+        if (keysPressed.contains("D") && !collisionInDirection(characterX, characterY, wave.npcs, "D")) {
             character.moveRight(WINDOW_WIDTH);
+            System.out.println("Moving Right Pressed");
         }
     }
 
@@ -226,58 +248,77 @@ public class GameApp extends Application {
         List<Projectile> projectilesToRemove = new ArrayList<>();
         List<NonPlayableCharacter> charactersToRemove = new ArrayList<>();
 
+        // Assuming 'wave' is properly initialized and accessible here
         for (Projectile projectile : projectiles) {
-            for (NonPlayableCharacter nonPlayableCharacter : nonPlayableCharacters) {
+            for (NonPlayableCharacter nonPlayableCharacter : wave.npcs) { // Iterate over wave.npcs
                 if (collisionCheck(projectile, nonPlayableCharacter)) {
                     projectilesToRemove.add(projectile);
                     root.getChildren().remove(projectile.getProjectileImageView());
-                    handleCharacterHit(nonPlayableCharacter); // Pass the hit character to handleCharacterHit
-                    charactersToRemove.add(nonPlayableCharacter); // Add character to remove from characters list
+                    handleCharacterHit(nonPlayableCharacter); // Handle hit character
+                    charactersToRemove.add(nonPlayableCharacter); // Mark character for removal
                 }
             }
         }
 
+        // Remove projectiles and characters that need removal
         projectiles.removeAll(projectilesToRemove);
-        nonPlayableCharacters.removeAll(charactersToRemove); // Remove all hit characters from characters list
+        wave.npcs.removeAll(charactersToRemove);
     }
+
 
     private boolean collisionCheck(Projectile projectile, NonPlayableCharacter nonPlayableCharacter) {
         return projectile.getProjectileImageView().getBoundsInParent().intersects(nonPlayableCharacter.getImageView().getBoundsInParent());
     }
 
-    private boolean collisionInDirection(double characterX, double characterY, NonPlayableCharacter other, String direction) {
-        double testX = other.getImageView().getX();
-        double testY = other.getImageView().getY();
+    private boolean collisionInDirection(double characterX, double characterY, List<NonPlayableCharacter> npcs, String direction) {
+        for (NonPlayableCharacter other : npcs) {
+            double testX = other.getImageView().getX();
+            double testY = other.getImageView().getY();
 
-        // Calculate the edges of the characters' images
-        double characterLeft = characterX;
-        double characterRight = characterX + NonPlayableCharacter.CHARACTER_SIZE;
-        double characterTop = characterY;
-        double characterBottom = characterY + NonPlayableCharacter.CHARACTER_SIZE;
+            // Calculate the edges of the characters' images
+            double characterLeft = characterX;
+            double characterRight = characterX + NonPlayableCharacter.CHARACTER_SIZE;
+            double characterTop = characterY;
+            double characterBottom = characterY + NonPlayableCharacter.CHARACTER_SIZE;
 
-        double testLeft = testX;
-        double testRight = testX + NonPlayableCharacter.CHARACTER_SIZE;
-        double testTop = testY;
-        double testBottom = testY + NonPlayableCharacter.CHARACTER_SIZE;
+            double testLeft = testX;
+            double testRight = testX + NonPlayableCharacter.CHARACTER_SIZE;
+            double testTop = testY;
+            double testBottom = testY + NonPlayableCharacter.CHARACTER_SIZE;
 
-        // Check for partial intersection between the edges of the characters' images
-        switch (direction) {
-            case "W": // Moving up
-                return characterRight > testLeft && characterLeft < testRight &&
-                        characterTop - NonPlayableCharacter.MOVE_DISTANCE < testBottom && characterTop > testTop;
-            case "A": // Moving left
-                return characterBottom > testTop && characterTop < testBottom &&
-                        characterLeft - NonPlayableCharacter.MOVE_DISTANCE < testRight && characterLeft > testLeft;
-            case "S": // Moving down
-                return characterRight > testLeft && characterLeft < testRight &&
-                        characterBottom + NonPlayableCharacter.MOVE_DISTANCE > testTop && characterBottom < testBottom;
-            case "D": // Moving right
-                return characterBottom > testTop && characterTop < testBottom &&
-                        characterRight + NonPlayableCharacter.MOVE_DISTANCE > testLeft && characterRight < testRight;
-            default:
-                return false;
+            // Check for partial intersection between the edges of the characters' images
+            switch (direction) {
+                case "W": // Moving up
+                    if (characterRight > testLeft && characterLeft < testRight &&
+                            characterTop - NonPlayableCharacter.MOVE_DISTANCE < testBottom && characterTop > testTop) {
+                        return true;
+                    }
+                    break;
+                case "A": // Moving left
+                    if (characterBottom > testTop && characterTop < testBottom &&
+                            characterLeft - NonPlayableCharacter.MOVE_DISTANCE < testRight && characterLeft > testLeft) {
+                        return true;
+                    }
+                    break;
+                case "S": // Moving down
+                    if (characterRight > testLeft && characterLeft < testRight &&
+                            characterBottom + NonPlayableCharacter.MOVE_DISTANCE > testTop && characterBottom < testBottom) {
+                        return true;
+                    }
+                    break;
+                case "D": // Moving right
+                    if (characterBottom > testTop && characterTop < testBottom &&
+                            characterRight + NonPlayableCharacter.MOVE_DISTANCE > testLeft && characterRight < testRight) {
+                        return true;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
+        return false;
     }
+
 
     private void handleCharacterHit(NonPlayableCharacter nonPlayableCharacter) {
         // Implement your logic here to handle the hit character

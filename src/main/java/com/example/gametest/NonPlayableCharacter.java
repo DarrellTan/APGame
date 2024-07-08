@@ -14,8 +14,7 @@ public class NonPlayableCharacter {
     public Image npcLeft = new Image(getClass().getResource("/nonPlayableCharacter/npcLeft.png").toExternalForm());
     public Image npcRight = new Image(getClass().getResource("/nonPlayableCharacter/npcRight.png").toExternalForm());
 
-    public NonPlayableCharacter(String imagePath, double X, double Y) {
-        Image characterImage = new Image(imagePath);
+    public NonPlayableCharacter(Image characterImage, double X, double Y) {
         imageView = new ImageView(characterImage);
         imageView.setFitWidth(CHARACTER_SIZE);
         imageView.setFitHeight(CHARACTER_SIZE);
