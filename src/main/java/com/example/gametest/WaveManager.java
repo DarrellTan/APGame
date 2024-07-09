@@ -48,7 +48,7 @@ public class WaveManager {
     }
 
     private void spawnWave() {
-        int maxNPCs = 15; // Maximum NPCs allowed at a time
+        int maxNPCs = 10; // Maximum NPCs allowed at a time
         int currentNPCs = npcs.size(); // Current number of active NPCs
 
         if (currentNPCs >= maxNPCs) {
@@ -80,21 +80,6 @@ public class WaveManager {
     }
 
 
-    private void updateNPCs() {
-        for (NonPlayableCharacter npc : npcs) {
-            // Simple random movement logic
-            double dx = (random.nextDouble() - 0.5) * NonPlayableCharacter.MOVE_DISTANCE;
-            double dy = (random.nextDouble() - 0.5) * NonPlayableCharacter.MOVE_DISTANCE;
-
-            if (npc.getX() + dx >= 0 && npc.getX() + dx <= windowWidth - NonPlayableCharacter.CHARACTER_SIZE) {
-                npc.move(dx, 0);
-            }
-            if (npc.getY() + dy >= 0 && npc.getY() + dy <= windowHeight - NonPlayableCharacter.CHARACTER_SIZE) {
-                npc.move(0, dy);
-            }
-        }
-    }
-
     public void setCharacter(PlayableCharacter character) {
         this.character = character;
     }
@@ -102,17 +87,15 @@ public class WaveManager {
     private void updateNpcPosition(long now, PlayableCharacter character) {
         for (NonPlayableCharacter npc : npcs) {
             double dt = 1.0 / 60.0;
-            // System.out.println("DT: " + dt);
+
             // Calculate the desired target position for the NPC
             double targetX = character.getImageView().getX();
             double targetY = character.getImageView().getY();
-            // System.out.println("Position of Test X: " + test.getImageView().getX() + " Position of Test Y: " + test.getImageView().getY());
 
             // Calculate the direction vector from NPC to character
             double directionX = targetX - npc.getImageView().getX();
             double directionY = targetY - npc.getImageView().getY();
             double length = Math.sqrt(directionX * directionX + directionY * directionY);
-            // System.out.println("Direction X: " + directionX + " Direction Y: " + directionY);
 
             // Normalize the direction vector (optional, but ensures smoother movement)
             if (length != 0) {
@@ -124,8 +107,6 @@ public class WaveManager {
             double dx = directionX * npcSpeed * dt;
             double dy = directionY * npcSpeed * dt;
 
-            //System.out.println("dx: " + dx + " dy: " + dy);
-
             // Determine the direction of movement and change the image accordingly
             if (dx > 0) {
                 npc.setImage(npc.npcRight);
@@ -136,14 +117,14 @@ public class WaveManager {
             // Update the NPC's position with boundary checks
             double newX = npc.getImageView().getX() + dx;
             double newY = npc.getImageView().getY() + dy;
-            //        System.out.println("Test X: " + test.getImageView().getX() + " Test Y: " + test.getImageView().getY());
-            //        System.out.println("newX: " + newX + " newY: " + newY);
+
+            // Ensure NPCs stay within window boundaries and above 116 pixels from the top
             newX = Math.max(0, Math.min(newX, WINDOW_WIDTH - NonPlayableCharacter.CHARACTER_SIZE));
-            newY = Math.max(0, Math.min(newY, WINDOW_HEIGHT - NonPlayableCharacter.CHARACTER_SIZE));
+            newY = Math.max(116, Math.min(newY, WINDOW_HEIGHT - NonPlayableCharacter.CHARACTER_SIZE));
 
             // Move the NPC
             npc.moveTo(newX, newY);
-            //System.out.println("Target X: " + targetX + " Target Y: " + targetY + " Direction X: " + directionX + " Direction Y: " + directionY + " Test X: " + test.getImageView().getX() + " Test Y: " + test.getImageView().getY());
         }
     }
+
 }

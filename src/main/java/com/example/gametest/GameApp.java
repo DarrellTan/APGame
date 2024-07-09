@@ -37,6 +37,10 @@ public class GameApp extends Application {
 
     public double npcSpeed = 30; // Pixels per second
 
+    // Score Keeping in the UI
+    public int score;
+    public HUD hud;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -75,6 +79,13 @@ public class GameApp extends Application {
         // Request focus on the root pane to receive key events
         root.requestFocus();
 
+        // UI Related Initialization
+        HUD hud = new HUD();
+
+        this.hud = hud;
+        // Add Health Icons and Labels to the root node
+        root.getChildren().addAll(hud.healthIcon1, hud.healthIcon2, hud.healthIcon3, hud.scoreLabel, hud.highscoreLabel, hud.timeLabel);
+
         // Initialize AudioPlayer
        audioPlayer = new AudioPlayer();
        String musicFilePath = "src/main/resources/music/pvz.wav";
@@ -110,7 +121,6 @@ public class GameApp extends Application {
 
     private void update(long now) {
         updateCharacterPosition();
-//        updateNpcPosition(now); // Update NPC position
         shootingTest(now);
         updateProjectiles();
         checkProjectileCollisions();
@@ -144,53 +154,6 @@ public class GameApp extends Application {
         }
     }
 
-
-
-    private void updateNpcPosition(long now) {
-        double dt = 1.0 / 60.0;
-       // System.out.println("DT: " + dt);
-        // Calculate the desired target position for the NPC
-        double targetX = character.getImageView().getX();
-        double targetY = character.getImageView().getY();
-       // System.out.println("Position of Test X: " + test.getImageView().getX() + " Position of Test Y: " + test.getImageView().getY());
-
-        // Calculate the direction vector from NPC to character
-        double directionX = targetX - test.getImageView().getX();
-        double directionY = targetY - test.getImageView().getY();
-        double length = Math.sqrt(directionX * directionX + directionY * directionY);
-       // System.out.println("Direction X: " + directionX + " Direction Y: " + directionY);
-
-        // Normalize the direction vector (optional, but ensures smoother movement)
-        if (length != 0) {
-            directionX /= length;
-            directionY /= length;
-        }
-
-        // Calculate the desired movement amount based on NPC speed and elapsed time
-        double dx = directionX * npcSpeed * dt;
-        double dy = directionY * npcSpeed * dt;
-
-        //System.out.println("dx: " + dx + " dy: " + dy);
-
-        // Determine the direction of movement and change the image accordingly
-        if (dx > 0) {
-            test.setImage(test.npcRight);
-        } else if (dx < 0) {
-            test.setImage(test.npcLeft);
-        }
-
-        // Update the NPC's position with boundary checks
-        double newX = test.getImageView().getX() + dx;
-        double newY = test.getImageView().getY() + dy;
-//        System.out.println("Test X: " + test.getImageView().getX() + " Test Y: " + test.getImageView().getY());
-//        System.out.println("newX: " + newX + " newY: " + newY);
-        newX = Math.max(0, Math.min(newX, WINDOW_WIDTH - NonPlayableCharacter.CHARACTER_SIZE));
-        newY = Math.max(0, Math.min(newY, WINDOW_HEIGHT - NonPlayableCharacter.CHARACTER_SIZE));
-
-        // Move the NPC
-        test.moveTo(newX, newY);
-        //System.out.println("Target X: " + targetX + " Target Y: " + targetY + " Direction X: " + directionX + " Direction Y: " + directionY + " Test X: " + test.getImageView().getX() + " Test Y: " + test.getImageView().getY());
-    }
 
     private void shootingTest(long now) {
         if (now - lastShotTime < SHOOTING_COOLDOWN) {

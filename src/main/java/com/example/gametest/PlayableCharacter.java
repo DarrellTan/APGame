@@ -86,7 +86,8 @@ public class PlayableCharacter implements MouseListener {
     }
 
     public void moveUp() {
-        if (imageView.getY() - MOVE_DISTANCE >= 0) {
+        // Ensure character does not move above 116 pixels from the top
+        if (imageView.getY() - MOVE_DISTANCE >= 116) {
             imageView.setY(imageView.getY() - MOVE_DISTANCE);
         }
     }
@@ -96,6 +97,7 @@ public class PlayableCharacter implements MouseListener {
             imageView.setY(imageView.getY() + MOVE_DISTANCE);
         }
     }
+
 
     public Bounds getBounds() {
         return imageView.getBoundsInParent();
