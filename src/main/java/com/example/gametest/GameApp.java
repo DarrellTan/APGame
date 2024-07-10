@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -64,10 +65,14 @@ public class GameApp extends Application {
     public WaveManager wave;
     public HUD hud;
     private HighScoreReadAndWriter highScoreReadAndWriter;
+    private VolumeReadAndWriter volumeReadAndWriter;
+    private static final float DEFAULT_VOLUME = -10.0f;
+    private float volume;
 
     // Pausing System Variables
     private boolean isPaused = false;
     private AnimationTimer gameTimer;
+
 
     public VBox pauseBox;
 
@@ -115,6 +120,11 @@ public class GameApp extends Application {
         this.highscore = highScoreReadAndWriter.readHighscore();
         System.out.println(highscore);
 
+        // Initialize Default Volume
+        VolumeReadAndWriter volumeReadAndWriter = new VolumeReadAndWriter();
+        this.volumeReadAndWriter = volumeReadAndWriter;
+        volume = volumeReadAndWriter.readVolume();
+
         // UI Related Initialization
         HUD hud = new HUD();
 
@@ -124,7 +134,7 @@ public class GameApp extends Application {
         audioPlayer = new AudioPlayer();
         String musicFilePath = "src/main/resources/music/pvz.wav";
         audioPlayer.playMusic(musicFilePath);
-        audioPlayer.setMusicVolume(-10.0f);
+        audioPlayer.setMusicVolume(volume);
 
         // Show Main Menu
         showMainMenu();
@@ -222,7 +232,8 @@ public class GameApp extends Application {
         Button settingsButton = new Button("Settings");
         settingsButton.setOnAction(event -> {
             // Add logic to open settings
-            System.out.println("Open settings");
+           hidePauseMenu();
+           showSettingsMenu();
         });
 
         Button exitButton = new Button("Exit to Main Menu");
@@ -235,6 +246,44 @@ public class GameApp extends Application {
 
         pauseMenu.getChildren().addAll(resumeButton, restartButton, settingsButton, exitButton);
         root.getChildren().add(pauseMenu);
+    }
+
+    private void showSettingsMenu() {
+        VBox settingsMenu = new VBox();
+        settingsMenu.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8);"); // Semi-transparent black background
+        settingsMenu.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        settingsMenu.setAlignment(Pos.CENTER); // Center aligns its content
+        settingsMenu.setSpacing(20); // Add spacing between buttons
+
+        Label volumeLabel = new Label("Volume: ");
+        volumeLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: white;");
+
+        // Create a Slider for volume control
+        Slider volumeSlider = new Slider();
+        volumeSlider.setMin(-80);  // Minimum value (decibels)
+        volumeSlider.setMax(0);    // Maximum value (decibels)
+        volumeSlider.setValue(volume); // Initial value
+        volumeSlider.setShowTickLabels(true);
+        volumeSlider.setShowTickMarks(true);
+
+        // Listener for slider value change
+        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            volumeLabel.setText("Volume: " + newValue.intValue() + " dB");
+            audioPlayer.setMusicVolume(newValue.floatValue()); // Update audio volume
+            volumeReadAndWriter.writeVolume(newValue.intValue());
+        });
+
+
+        Button backButton = new Button("Back");
+        backButton.setOnAction(event -> {
+            // Add logic to open settings
+           hidePauseMenu();
+           showPauseMenu();
+        });
+
+
+        settingsMenu.getChildren().addAll(volumeLabel, volumeSlider, backButton);
+        root.getChildren().add(settingsMenu);
     }
 
     private void showMainMenu() {
@@ -258,6 +307,8 @@ public class GameApp extends Application {
         settingsButton.setOnAction(event -> {
             // Add logic to open settings
             System.out.println("Open settings");
+            hidePauseMenu();
+            showSettingsMenu();
         });
 
         Button exitButton = new Button("Exit Game");
@@ -301,7 +352,8 @@ public class GameApp extends Application {
             Button settingsButton = new Button("Settings");
             settingsButton.setOnAction(event -> {
                 // Add logic to open settings
-                System.out.println("Open settings");
+               hidePauseMenu();
+               showSettingsMenu();
             });
 
             Button exitButton = new Button("Exit to Main Menu");
