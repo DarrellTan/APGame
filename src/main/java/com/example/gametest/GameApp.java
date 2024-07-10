@@ -16,6 +16,7 @@ import java.util.Set;
 
 public class GameApp extends Application {
 
+    // JavaFX Variables
     public static final int WINDOW_WIDTH = 800;
     public static final int WINDOW_HEIGHT = 600;
     private static final long SHOOTING_COOLDOWN = 1_000_000_000; // 1 second in nanoseconds
@@ -23,24 +24,36 @@ public class GameApp extends Application {
     private Pane root;
 
     public PlayableCharacter character;
-    private NonPlayableCharacter test;
+
+    // Previous Developmental Test Code (Keeping for memories)
+    //private NonPlayableCharacter test;
+
+    // Arrays for Inputs, Projectiles and NPC characters
     private List<NonPlayableCharacter> nonPlayableCharacters = new ArrayList<>();
     private Set<String> keysPressed = new HashSet<>();
     private List<Projectile> projectiles = new ArrayList<>();
+
+    // Player Balance Variables
     private long lastUpdateTime = 0;
     private long lastShotTime = 0;
     private long lastDamageTime;
-    private int health = 3;
-    private AudioPlayer audioPlayer;
-    public WaveManager wave;
 
+
+    // Image Variables
     public Image startNpcLeft = new Image(getClass().getResource("/nonPlayableCharacter/npcLeft.png").toExternalForm());
     public Image startNpcRight = new Image(getClass().getResource("/nonPlayableCharacter/npcRight.png").toExternalForm());
 
     public double npcSpeed = 30; // Pixels per second
 
+    // Player Score and Information Related Variables
+    private int health = 3;
+
     // Score Keeping in the UI
     public int score;
+
+    // External Classes Variables
+    private AudioPlayer audioPlayer;
+    public WaveManager wave;
     public HUD hud;
 
     public static void main(String[] args) {
@@ -60,7 +73,7 @@ public class GameApp extends Application {
         character.getImageView().setY(WINDOW_HEIGHT / 2 - NonPlayableCharacter.CHARACTER_SIZE / 2);
         root.getChildren().add(character.getImageView());
 
-        // Bot
+        // Bot (Previous Developmental Test)
 //        test = new NonPlayableCharacter(startNpcRight, 700, 500);
 //        root.getChildren().add(test.getImageView());
 //        nonPlayableCharacters.add(test);
@@ -103,7 +116,7 @@ public class GameApp extends Application {
             public void handle(long now) {
                 if (now - lastUpdateTime >= FRAME_DURATION) {
                     update(now);
-                    render();
+                    //render(); Scrapped Code Design
 
                     lastUpdateTime = now;
                 }
@@ -129,6 +142,7 @@ public class GameApp extends Application {
         playableCharacterHit(now);
     }
 
+    // Scrapped Function
     private void render() {
         // Render code if needed
     }
@@ -225,6 +239,9 @@ public class GameApp extends Application {
                 }
             }
         }
+        // Score Keeping (And potentially keeping track of number of projectiles shot)
+        score += charactersToRemove.size();
+        hud.setScoreLabel(score);
 
         // Remove projectiles and characters that need removal
         projectiles.removeAll(projectilesToRemove);

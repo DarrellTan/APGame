@@ -58,9 +58,17 @@ public class WaveManager {
         int numberOfEnemies = waveNumber + 5; // Increase enemies per wave
         int NPCsToAdd = Math.min(maxNPCs - currentNPCs, numberOfEnemies); // Calculate NPCs to add
 
+        double characterX = character.getImageView().getX() + NonPlayableCharacter.CHARACTER_SIZE / 2;
+        double characterY = character.getImageView().getY() + NonPlayableCharacter.CHARACTER_SIZE / 2;
+        double safeRadius = 300;
+
         for (int i = 0; i < NPCsToAdd; i++) {
-            double x = random.nextDouble() * (windowWidth - NonPlayableCharacter.CHARACTER_SIZE);
-            double y = random.nextDouble() * (windowHeight - NonPlayableCharacter.CHARACTER_SIZE);
+            double x, y;
+            do {
+                x = random.nextDouble() * (windowWidth - NonPlayableCharacter.CHARACTER_SIZE);
+                y = random.nextDouble() * (windowHeight - NonPlayableCharacter.CHARACTER_SIZE);
+            } while (distance(x, y, characterX, characterY) < safeRadius);
+
             NonPlayableCharacter npc = new NonPlayableCharacter(startNpcRight, x, y);
             npcs.add(npc);
             root.getChildren().add(npc.getImageView());
@@ -78,6 +86,14 @@ public class WaveManager {
         // Debugging statement to check the size of npcs list
         System.out.println("NPCs in wave.npcs after spawning wave: " + npcs.size());
     }
+
+    // Helper method to calculate the distance between two points
+    private double distance(double x1, double y1, double x2, double y2) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
 
 
     public void setCharacter(PlayableCharacter character) {
