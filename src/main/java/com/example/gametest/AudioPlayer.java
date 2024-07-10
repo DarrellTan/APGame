@@ -1,15 +1,14 @@
 package com.example.gametest;
-import javax.sound.sampled.*;
-import java.net.URL;
-import java.io.File;
 
+import javax.sound.sampled.*;
+import java.io.File;
 
 public class AudioPlayer {
 
     private Clip clip;
     private FloatControl volumeControl;
 
-    public void playMusic(String filePath) {
+    public void playMusic(String filePath, float initialVolume) {
         try {
             // Load audio file as resource using class loader
             File musicPath = new File(filePath);
@@ -31,17 +30,17 @@ public class AudioPlayer {
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicPath);
                 clip = AudioSystem.getClip();
                 clip.open(audioStream);
+
+                volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                setMusicVolume(initialVolume); // Set initial volume
+
                 clip.loop(Clip.LOOP_CONTINUOUSLY);
                 clip.start();
                 System.out.println("Audio played");
-            }
-            else {
+            } else {
                 System.out.println("Can't find file");
             }
 
-
-
-            volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,4 +59,3 @@ public class AudioPlayer {
         }
     }
 }
-

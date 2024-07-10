@@ -133,8 +133,9 @@ public class GameApp extends Application {
         // Initialize AudioPlayer
         audioPlayer = new AudioPlayer();
         String musicFilePath = "src/main/resources/music/pvz.wav";
-        audioPlayer.playMusic(musicFilePath);
-        audioPlayer.setMusicVolume(volume);
+
+        // Play music with initial volume set
+        audioPlayer.playMusic(musicFilePath, volume);
 
         // Show Main Menu
         showMainMenu();
