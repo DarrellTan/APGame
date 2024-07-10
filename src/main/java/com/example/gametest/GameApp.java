@@ -2,12 +2,15 @@ package com.example.gametest;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.scene.layout.VBox;
 
 
 import java.util.ArrayList;
@@ -61,6 +64,8 @@ public class GameApp extends Application {
     private boolean isPaused = false;
     private AnimationTimer gameTimer;
 
+    public VBox pauseBox;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -70,6 +75,7 @@ public class GameApp extends Application {
         root = new Pane(); // Initialize root here
         root.setStyle("-fx-background-image: url('room.png');"); // Inline CSS for background
 
+        // Pause VBox
 
 
         // MC Character
@@ -108,10 +114,10 @@ public class GameApp extends Application {
         root.getChildren().addAll(hud.healthIcon1, hud.healthIcon2, hud.healthIcon3, hud.scoreLabel, hud.highscoreLabel, hud.timeLabel);
 
         // Initialize AudioPlayer
-       audioPlayer = new AudioPlayer();
-       String musicFilePath = "src/main/resources/music/pvz.wav";
-       audioPlayer.playMusic(musicFilePath);
-       audioPlayer.setMusicVolume(-10.0f);
+        audioPlayer = new AudioPlayer();
+        String musicFilePath = "src/main/resources/music/pvz.wav";
+        audioPlayer.playMusic(musicFilePath);
+        audioPlayer.setMusicVolume(-10.0f);
 
 
         // Start the animation timer
@@ -143,13 +149,54 @@ public class GameApp extends Application {
     private void pauseGame() {
         isPaused = true;
         gameTimer.stop();
-        //showPauseMenu();
+        showPauseMenu();
     }
 
     private void resumeGame() {
         isPaused = false;
         gameTimer.start();
-        //hidePauseMenu();
+        hidePauseMenu();
+    }
+
+    private void hidePauseMenu() {
+        root.getChildren().removeIf(node -> node instanceof VBox); // Remove any VBox (pause menu)
+    }
+
+    private void showPauseMenu() {
+        VBox pauseMenu = new VBox();
+        pauseMenu.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8);"); // Semi-transparent black background
+        pauseMenu.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        pauseMenu.setAlignment(Pos.CENTER); // Center aligns its content
+        pauseMenu.setSpacing(20); // Add spacing between buttons
+
+        Button resumeButton = new Button("Resume Game");
+        resumeButton.setOnAction(event -> resumeGame());
+
+        Button restartButton = new Button("Restart Game");
+        restartButton.setOnAction(event -> {
+            // Add logic to restart the game
+            // initializeGame(); This for later
+            resumeGame();
+        });
+
+        Button settingsButton = new Button("Settings");
+        settingsButton.setOnAction(event -> {
+            // Add logic to open settings
+            System.out.println("Open settings");
+        });
+
+        Button exitButton = new Button("Exit to Main Menu");
+        exitButton.setOnAction(event -> {
+            // Add logic to exit to main menu
+            System.out.println("Exit to main menu");
+        });
+
+        pauseMenu.getChildren().addAll(resumeButton, restartButton, settingsButton, exitButton);
+        root.getChildren().add(pauseMenu);
+    }
+
+    public void endGame() {
+        gameTimer.stop();
     }
 
     private void handleKeyPause(KeyEvent event) {

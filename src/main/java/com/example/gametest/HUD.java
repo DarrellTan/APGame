@@ -72,6 +72,10 @@ public class HUD {
         scoreLabel.setText("Score: " + score);
     }
 
+    public void hudReset() {
+
+    }
+
     public void healthUpdater(int health, Pane root) {
         switch(health) {
             case 3:
