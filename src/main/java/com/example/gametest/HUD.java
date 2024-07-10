@@ -72,6 +72,10 @@ public class HUD {
         scoreLabel.setText("Score: " + score);
     }
 
+    public void setHighscoreLabel(int highscore) {
+        highscoreLabel.setText("Highscore: " + highscore);
+    }
+
     public void hudReset() {
 
     }

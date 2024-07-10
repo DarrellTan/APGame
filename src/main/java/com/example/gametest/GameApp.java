@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -55,11 +56,14 @@ public class GameApp extends Application {
 
     // Score Keeping in the UI
     public int score;
+    public int highscore;
+    public int initialHighscore;
 
     // External Classes Variables
     private AudioPlayer audioPlayer;
     public WaveManager wave;
     public HUD hud;
+    private HighScoreReadAndWriter highScoreReadAndWriter;
 
     // Pausing System Variables
     private boolean isPaused = false;
@@ -105,6 +109,12 @@ public class GameApp extends Application {
         // Request focus on the root pane to receive key events
         root.requestFocus();
 
+        // Initialize Highscore
+        HighScoreReadAndWriter highScoreReadAndWriter = new HighScoreReadAndWriter();
+        this.highScoreReadAndWriter = highScoreReadAndWriter;
+        this.highscore = highScoreReadAndWriter.readHighscore();
+        System.out.println(highscore);
+
         // UI Related Initialization
         HUD hud = new HUD();
 
@@ -138,6 +148,7 @@ public class GameApp extends Application {
         // Initialize HUD
         HUD hud = new HUD();
         this.hud = hud;
+        hud.setHighscoreLabel(highscore);
         root.getChildren().addAll(hud.healthIcon1, hud.healthIcon2, hud.healthIcon3, hud.scoreLabel, hud.highscoreLabel, hud.timeLabel);
 
         // Initialize Wave Manager
@@ -188,6 +199,7 @@ public class GameApp extends Application {
     }
 
     private void showPauseMenu() {
+        writingHighscore();
         VBox pauseMenu = new VBox();
         pauseMenu.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8);"); // Semi-transparent black background
         pauseMenu.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -260,9 +272,70 @@ public class GameApp extends Application {
         root.getChildren().add(gameMenu);
     }
 
+    public void deathScreen() {
+        if (health <= 0) {
+            writingHighscore();
+
+            gameTimer.stop();
+            VBox deathMenu = new VBox();
+            deathMenu.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8);"); // Semi-transparent black background
+            deathMenu.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+            deathMenu.setAlignment(Pos.CENTER); // Center aligns its content
+            deathMenu.setSpacing(20); // Add spacing between buttons
+
+            Label gameOver = new Label("Game Over");
+            gameOver.setStyle("-fx-font-size: 48px; -fx-text-fill: white;");
+            Label scoreText = new Label("Score: " + score);
+            scoreText.setStyle("-fx-font-size: 24px; -fx-text-fill: white;");
+
+            Button restartButton = new Button("Restart Game");
+            restartButton.setOnAction(event -> {
+                // Add logic to restart the game
+                // initializeGame(); This for later
+                isPaused = false;
+                hidePauseMenu();
+                initializeGame();
+                startGame();
+            });
+
+            Button settingsButton = new Button("Settings");
+            settingsButton.setOnAction(event -> {
+                // Add logic to open settings
+                System.out.println("Open settings");
+            });
+
+            Button exitButton = new Button("Exit to Main Menu");
+            exitButton.setOnAction(event -> {
+                // Add logic to exit to main menu
+                System.out.println("Exit to main menu");
+                hidePauseMenu();
+                showMainMenu();
+            });
+
+            deathMenu.getChildren().addAll(gameOver, scoreText, restartButton, settingsButton, exitButton);
+            root.getChildren().add(deathMenu);
+        }
+    }
+
     public void endGame() {
         gameTimer.stop();
     }
+
+    // Writing Highscore
+   public void setHighscore(int score) {
+        if (score > highscore) {
+            highscore = score;
+            hud.setHighscoreLabel(highscore);
+       }
+   }
+
+   public void writingHighscore() {
+       if (score > initialHighscore) {
+           highScoreReadAndWriter.writeHighscore(score);
+           System.out.println("Writing Highscore Function Ran");
+       }
+   }
+
 
     private void handleKeyPause(KeyEvent event) {
         String code = event.getCode().toString();
@@ -283,6 +356,7 @@ public class GameApp extends Application {
     }
 
     private void update(long now) {
+        setHighscore(score);
         updateCharacterPosition();
         shootingTest(now);
         updateProjectiles();
@@ -290,6 +364,7 @@ public class GameApp extends Application {
         playableCharacterHit(now);
         // Spawn waves
         wave.update(now);
+        deathScreen();
     }
 
     // Scrapped Function
@@ -487,6 +562,7 @@ public class GameApp extends Application {
             }
         }
     }
+
 
     private void handleCharacterHit(NonPlayableCharacter nonPlayableCharacter) {
         // Implement your logic here to handle the hit character
