@@ -2,6 +2,7 @@ package com.example.gametest;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -75,8 +76,6 @@ public class GameApp extends Application {
         root = new Pane(); // Initialize root here
         root.setStyle("-fx-background-image: url('room.png');"); // Inline CSS for background
 
-        // Pause VBox
-
 
         // MC Character
         character = new PlayableCharacter();
@@ -110,8 +109,6 @@ public class GameApp extends Application {
         HUD hud = new HUD();
 
         this.hud = hud;
-        // Add Health Icons and Labels to the root node
-        root.getChildren().addAll(hud.healthIcon1, hud.healthIcon2, hud.healthIcon3, hud.scoreLabel, hud.highscoreLabel, hud.timeLabel);
 
         // Initialize AudioPlayer
         audioPlayer = new AudioPlayer();
@@ -119,21 +116,49 @@ public class GameApp extends Application {
         audioPlayer.playMusic(musicFilePath);
         audioPlayer.setMusicVolume(-10.0f);
 
+        // Show Main Menu
+        showMainMenu();
+    }
 
-        // Start the animation timer
+    // Initialize Game Functions
+    private void initializeGame() {
+        // Clear existing game elements if any
+        root.getChildren().clear();
+        wave.npcs.clear();
+        projectiles.clear();
+        health = 3;
+        score = 0;
+
+        // Initialize the playable character
+        character = new PlayableCharacter();
+        character.getImageView().setX(WINDOW_WIDTH / 2 - NonPlayableCharacter.CHARACTER_SIZE / 2);
+        character.getImageView().setY(WINDOW_HEIGHT / 2 - NonPlayableCharacter.CHARACTER_SIZE / 2);
+        root.getChildren().add(character.getImageView());
+
+        // Initialize HUD
+        HUD hud = new HUD();
+        this.hud = hud;
+        root.getChildren().addAll(hud.healthIcon1, hud.healthIcon2, hud.healthIcon3, hud.scoreLabel, hud.highscoreLabel, hud.timeLabel);
+
+        // Initialize Wave Manager
+        WaveManager wave = new WaveManager(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        this.wave = wave;
+        wave.setCharacter(character);
+    }
+
+    private void startGame() {
         gameTimer = new AnimationTimer() {
+            private long lastUpdateTime = 0;
+
             @Override
             public void handle(long now) {
                 if (!isPaused && now - lastUpdateTime >= FRAME_DURATION) {
                     update(now);
-                    render();
                     lastUpdateTime = now;
                 }
             }
         };
         gameTimer.start();
-
-
     }
 
     // Functions for Pausing System
@@ -176,7 +201,10 @@ public class GameApp extends Application {
         restartButton.setOnAction(event -> {
             // Add logic to restart the game
             // initializeGame(); This for later
-            resumeGame();
+            isPaused = false;
+            hidePauseMenu();
+            initializeGame();
+            startGame();
         });
 
         Button settingsButton = new Button("Settings");
@@ -189,10 +217,47 @@ public class GameApp extends Application {
         exitButton.setOnAction(event -> {
             // Add logic to exit to main menu
             System.out.println("Exit to main menu");
+            hidePauseMenu();
+            showMainMenu();
         });
 
         pauseMenu.getChildren().addAll(resumeButton, restartButton, settingsButton, exitButton);
         root.getChildren().add(pauseMenu);
+    }
+
+    private void showMainMenu() {
+        VBox gameMenu = new VBox();
+        gameMenu.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8);"); // Semi-transparent black background
+        gameMenu.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        gameMenu.setAlignment(Pos.CENTER); // Center aligns its content
+        gameMenu.setSpacing(20); // Add spacing between buttons
+
+
+        Button startButton = new Button("Start Game");
+        startButton.setOnAction(event -> {
+            // Add logic to restart the game
+            // initializeGame(); This for later
+            hidePauseMenu();
+            initializeGame();
+            startGame();
+        });
+
+        Button settingsButton = new Button("Settings");
+        settingsButton.setOnAction(event -> {
+            // Add logic to open settings
+            System.out.println("Open settings");
+        });
+
+        Button exitButton = new Button("Exit Game");
+        exitButton.setOnAction(event -> {
+            // Add logic to exit to main menu
+            System.out.println("Exit Game");
+            Platform.exit();
+
+        });
+
+        gameMenu.getChildren().addAll(startButton, settingsButton, exitButton);
+        root.getChildren().add(gameMenu);
     }
 
     public void endGame() {
