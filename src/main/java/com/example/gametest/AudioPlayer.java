@@ -13,19 +13,6 @@ public class AudioPlayer {
             // Load audio file as resource using class loader
             File musicPath = new File(filePath);
 
-            // Get the absolute path of the file
-            String absolutePath = musicPath.getAbsolutePath();
-
-            // Print the absolute path
-            System.out.println("The file is being looked for at: " + absolutePath);
-
-            // Check if the file exists
-            if (musicPath.exists()) {
-                System.out.println("File exists at the specified location.");
-            } else {
-                System.out.println("File does not exist at the specified location.");
-            }
-
             if (musicPath.exists()) {
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicPath);
                 clip = AudioSystem.getClip();
@@ -48,7 +35,9 @@ public class AudioPlayer {
 
     public void setMusicVolume(float volume) {
         if (volumeControl != null) {
-            volumeControl.setValue(volume);
+            // Map the volume (0-100) to decibels (-80 to 6)
+            float dB = (volume / 100.0f) * 86.0f - 80.0f;
+            volumeControl.setValue(dB);
         }
     }
 

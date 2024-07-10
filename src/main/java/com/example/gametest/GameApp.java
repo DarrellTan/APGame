@@ -261,17 +261,16 @@ public class GameApp extends Application {
 
         // Create a Slider for volume control
         Slider volumeSlider = new Slider();
-        volumeSlider.setMin(-80);  // Minimum value (decibels)
-        volumeSlider.setMax(0);    // Maximum value (decibels)
+        volumeSlider.setMin(0);  // Minimum value (decibels)
+        volumeSlider.setMax(100);    // Maximum value (decibels)
         volumeSlider.setValue(volume); // Initial value
         volumeSlider.setShowTickLabels(true);
         volumeSlider.setShowTickMarks(true);
 
         // Listener for slider value change
         volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            volumeLabel.setText("Volume: " + newValue.intValue() + " dB");
+            volumeLabel.setText("Volume: " + newValue.intValue() + " %");
             audioPlayer.setMusicVolume(newValue.floatValue()); // Update audio volume
-            volumeReadAndWriter.writeVolume(newValue.intValue());
         });
 
 
