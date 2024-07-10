@@ -160,7 +160,7 @@ public class GameApp extends Application {
         HUD hud = new HUD();
         this.hud = hud;
         hud.setHighscoreLabel(highscore);
-        root.getChildren().addAll(hud.healthIcon1, hud.healthIcon2, hud.healthIcon3, hud.scoreLabel, hud.highscoreLabel, hud.timeLabel);
+        root.getChildren().addAll(hud.healthIcon1, hud.healthIcon2, hud.healthIcon3, hud.scoreLabel, hud.highscoreLabel);
 
         // Initialize Wave Manager
         WaveManager wave = new WaveManager(root, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -298,6 +298,7 @@ public class GameApp extends Application {
         startButton.setOnAction(event -> {
             // Add logic to restart the game
             // initializeGame(); This for later
+            isPaused = false;
             hidePauseMenu();
             initializeGame();
             startGame();

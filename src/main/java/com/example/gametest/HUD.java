@@ -46,7 +46,7 @@ public class HUD {
         // Initialize Labels
         scoreLabel = new Label("Score: 0");
         highscoreLabel = new Label("Highscore: 0");
-        timeLabel = new Label("Time: 0");
+        //timeLabel = new Label("Time: 0");
 
         // Setting Initial UI text
         // scoreLabel
@@ -58,14 +58,14 @@ public class HUD {
         highscoreLabel.setLayoutY(40);
 
         // timeDisplayLabel
-        timeLabel.setLayoutX(650);
-        timeLabel.setLayoutY(70);
+//        timeLabel.setLayoutX(650);
+//        timeLabel.setLayoutY(70);
 
         // Set font size and color for labels
         String labelStyle = "-fx-font-size: 16px; -fx-text-fill: #f0f0f0;"; // Soft white color
         scoreLabel.setStyle(labelStyle);
         highscoreLabel.setStyle(labelStyle);
-        timeLabel.setStyle(labelStyle);
+//        timeLabel.setStyle(labelStyle);
     }
 
     public void setScoreLabel(int score){
