@@ -18,6 +18,7 @@ public class WaveManager {
     private Random random;
     private int waveNumber;
     public double npcSpeed = 30; // Pixels per second
+    private long lastWaveTime = 0;
 
     public Image startNpcLeft = new Image(getClass().getResource("/nonPlayableCharacter/npcLeft.png").toExternalForm());
     public Image startNpcRight = new Image(getClass().getResource("/nonPlayableCharacter/npcRight.png").toExternalForm());
@@ -32,19 +33,12 @@ public class WaveManager {
         this.waveNumber = 1;
     }
 
-    public void startWaves() {
-        new AnimationTimer() {
-            private long lastWaveTime = 0;
-
-            @Override
-            public void handle(long now) {
-                if (now - lastWaveTime > 10_000_000_000L) { // 5 seconds per wave
-                    spawnWave();
-                    lastWaveTime = now;
-                }
-                updateNpcPosition(now, character);
-            }
-        }.start();
+    public void update(long now) {
+        if (now - lastWaveTime > 10_000_000_000L) { // 5 seconds per wave
+            spawnWave();
+            lastWaveTime = now;
+        }
+        updateNpcPosition(now, character);
     }
 
     private void spawnWave() {

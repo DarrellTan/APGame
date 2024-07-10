@@ -4,6 +4,7 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -56,6 +57,10 @@ public class GameApp extends Application {
     public WaveManager wave;
     public HUD hud;
 
+    // Pausing System Variables
+    private boolean isPaused = false;
+    private AnimationTimer gameTimer;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -85,6 +90,7 @@ public class GameApp extends Application {
 
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
         scene.setOnKeyPressed(this::handleKeyPressed);
+        scene.setOnKeyPressed(this::handleKeyPause);
         scene.setOnKeyReleased(this::handleKeyReleased);
 
         primaryStage.setTitle("Fearless");
@@ -107,23 +113,53 @@ public class GameApp extends Application {
        audioPlayer.playMusic(musicFilePath);
        audioPlayer.setMusicVolume(-10.0f);
 
-        // Start waves
-        wave.startWaves();
 
-        // Start an animation timer to update the character's position
-        new AnimationTimer() {
+        // Start the animation timer
+        gameTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if (now - lastUpdateTime >= FRAME_DURATION) {
+                if (!isPaused && now - lastUpdateTime >= FRAME_DURATION) {
                     update(now);
-                    //render(); Scrapped Code Design
-
+                    render();
                     lastUpdateTime = now;
                 }
             }
-        }.start();
+        };
+        gameTimer.start();
 
 
+    }
+
+    // Functions for Pausing System
+
+    private void handlePauseButton() {
+        if (isPaused) {
+            resumeGame();
+        } else {
+            pauseGame();
+        }
+    }
+
+    private void pauseGame() {
+        isPaused = true;
+        gameTimer.stop();
+        //showPauseMenu();
+    }
+
+    private void resumeGame() {
+        isPaused = false;
+        gameTimer.start();
+        //hidePauseMenu();
+    }
+
+    private void handleKeyPause(KeyEvent event) {
+        String code = event.getCode().toString();
+        keysPressed.add(code);
+
+        // Check if the Esc key is pressed to toggle the pause state
+        if (event.getCode() == KeyCode.ESCAPE) {
+            handlePauseButton();
+        }
     }
 
     private void handleKeyPressed(KeyEvent event) {
@@ -140,6 +176,8 @@ public class GameApp extends Application {
         updateProjectiles();
         checkProjectileCollisions();
         playableCharacterHit(now);
+        // Spawn waves
+        wave.update(now);
     }
 
     // Scrapped Function
