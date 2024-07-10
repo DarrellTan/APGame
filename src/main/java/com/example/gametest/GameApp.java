@@ -29,6 +29,8 @@ public class GameApp extends Application {
     private List<Projectile> projectiles = new ArrayList<>();
     private long lastUpdateTime = 0;
     private long lastShotTime = 0;
+    private long lastDamageTime;
+    private int health = 3;
     private AudioPlayer audioPlayer;
     public WaveManager wave;
 
@@ -124,6 +126,7 @@ public class GameApp extends Application {
         shootingTest(now);
         updateProjectiles();
         checkProjectileCollisions();
+        playableCharacterHit(now);
     }
 
     private void render() {
@@ -138,19 +141,19 @@ public class GameApp extends Application {
 
         if (keysPressed.contains("W") && !collisionInDirection(characterX, characterY, wave.npcs, "W")) {
             character.moveUp();
-            System.out.println("Moving Up Pressed");
+            //System.out.println("Moving Up Pressed");
         }
         if (keysPressed.contains("A") && !collisionInDirection(characterX, characterY, wave.npcs, "A")) {
             character.moveLeft();
-            System.out.println("Moving Left Pressed");
+            //System.out.println("Moving Left Pressed");
         }
         if (keysPressed.contains("S") && !collisionInDirection(characterX, characterY, wave.npcs, "S")) {
             character.moveDown(WINDOW_HEIGHT);
-            System.out.println("Moving Down Pressed");
+            //System.out.println("Moving Down Pressed");
         }
         if (keysPressed.contains("D") && !collisionInDirection(characterX, characterY, wave.npcs, "D")) {
             character.moveRight(WINDOW_WIDTH);
-            System.out.println("Moving Right Pressed");
+            //System.out.println("Moving Right Pressed");
         }
     }
 
@@ -282,6 +285,41 @@ public class GameApp extends Application {
         return false;
     }
 
+    private boolean playableCharacterCollision(double characterX, double characterY, List<NonPlayableCharacter> npcs) {
+        for (NonPlayableCharacter other : npcs) {
+            double testX = other.getImageView().getX();
+            double testY = other.getImageView().getY();
+
+            // Calculate the edges of the characters' images
+            double characterLeft = characterX;
+            double characterRight = characterX + NonPlayableCharacter.CHARACTER_SIZE;
+            double characterTop = characterY;
+            double characterBottom = characterY + NonPlayableCharacter.CHARACTER_SIZE;
+
+            double testLeft = testX;
+            double testRight = testX + NonPlayableCharacter.CHARACTER_SIZE;
+            double testTop = testY;
+            double testBottom = testY + NonPlayableCharacter.CHARACTER_SIZE;
+
+            // Check for collision in any direction
+            if (characterRight > testLeft && characterLeft < testRight &&
+                    characterBottom > testTop && characterTop < testBottom) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void playableCharacterHit(long now) {
+        if (playableCharacterCollision(character.getImageView().getX(), character.getImageView().getY(), wave.npcs)){
+            if ((now - lastDamageTime) >= 1_000_000_000) { // 1 second in nanoseconds
+                health -= 1;
+                lastDamageTime = now;
+                hud.healthUpdater(health, root);
+                System.out.println("Got hit, -1 health");
+            }
+        }
+    }
 
     private void handleCharacterHit(NonPlayableCharacter nonPlayableCharacter) {
         // Implement your logic here to handle the hit character

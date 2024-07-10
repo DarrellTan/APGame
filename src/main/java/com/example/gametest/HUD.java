@@ -3,6 +3,7 @@ package com.example.gametest;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 
 public class HUD {
     public Image healthPng;
@@ -71,4 +72,22 @@ public class HUD {
         scoreLabel.setText("Score: " + score);
     }
 
+    public void healthUpdater(int health, Pane root) {
+        switch(health) {
+            case 3:
+                return;
+            case 2:
+                root.getChildren().remove(healthIcon3);
+                break;
+            case 1:
+                root.getChildren().remove(healthIcon2);
+                break;
+            case 0:
+                System.out.println("End Game");
+                break;
+            default:
+                System.out.println("Health outside of expected value");
+                break;
+        }
+    }
 }
