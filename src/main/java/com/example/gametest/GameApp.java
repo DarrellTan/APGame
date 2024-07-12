@@ -271,6 +271,7 @@ public class GameApp extends Application {
         volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             volumeLabel.setText("Volume: " + newValue.intValue() + " %");
             audioPlayer.setMusicVolume(newValue.floatValue()); // Update audio volume
+            volumeReadAndWriter.writeVolume(newValue.floatValue());
         });
 
 
