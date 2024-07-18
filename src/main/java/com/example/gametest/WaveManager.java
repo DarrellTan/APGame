@@ -42,7 +42,7 @@ public class WaveManager {
     }
 
     private void spawnWave() {
-        int maxNPCs = 10; // Maximum NPCs allowed at a time
+        int maxNPCs = 20; // Maximum NPCs allowed at a time
         int currentNPCs = npcs.size(); // Current number of active NPCs
 
         if (currentNPCs >= maxNPCs) {
@@ -73,7 +73,7 @@ public class WaveManager {
 
         // Check if it's a multiple of 5 to increase npcSpeed
         if (waveNumber % 5 == 0) {
-            npcSpeed += 10;
+            npcSpeed += 15;
             System.out.println("NPC Speed increased to: " + npcSpeed);
         }
 

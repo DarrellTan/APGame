@@ -92,6 +92,7 @@ public class HUD {
                 break;
             case 0:
                 System.out.println("End Game");
+                root.getChildren().remove(healthIcon1);
                 break;
             default:
                 System.out.println("Health outside of expected value");
